@@ -113,7 +113,6 @@ if __name__ == "__main__":
     # Print top results
     tmp = np.argsort(out)[0]
     topIds = tmp[-candidates:]
-    print topIds
 
     for id in reversed(topIds):
         print id, ':', labels[id][10:], ':', out.item(id)
