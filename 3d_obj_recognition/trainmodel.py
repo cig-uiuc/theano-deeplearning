@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 import cv2
 import pdb
 
+import fig2img
+
 IMG_S = 227
 
 
@@ -81,7 +83,6 @@ def train_model(model):
 
 
 def resize_img(img):
-    img = cv2.transpose(img)
     if len(img.shape)==3:
         im_h,im_w,im_c = img.shape
     else:
@@ -104,8 +105,8 @@ def resize_img(img):
             top = top.transpose(2,0,1)
             bottom = bottom.transpose(2,0,1)
         else: # depth images
-            top = np.tile(img[0,:], [nb_top,1]).transpose()
-            bottom = np.tile(img[-1,:], [nb_bottom,1]).transpose()
+            top = np.tile(img[0,:], [nb_top,1])
+            bottom = np.tile(img[-1,:], [nb_bottom,1])
 
         # concatenate with the original image
         res = np.concatenate((top,img,bottom), axis=0)
@@ -138,9 +139,13 @@ def colorize_depth(img):
     # scale the value from 0 to 255
     img = img.astype(float)
     img *= 255 / img.max()
+    img = img.astype(np.uint16)
 
-    #pdb.set_trace()
-    return img
+    # colorize depth map
+    # dumb way to implement
+    plt.imsave('tmp.png', img)
+    res = cv2.imread('tmp.png')
+    return res
 
 
 def main():
