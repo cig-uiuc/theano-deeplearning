@@ -91,7 +91,7 @@ def create_model():
     return model
 
 
-def train_model(model):
+def train_model(model, x_train, y_train):
     print 'Training model...'
   
     model.fit(x_train, y_train, nb_epoch=1, batch_size=1)
