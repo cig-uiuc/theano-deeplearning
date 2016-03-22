@@ -205,10 +205,9 @@ def get_data(batch, categories):
         # load data
         rgb = cv2.imread(item+RGB_EXT, cv2.CV_LOAD_IMAGE_COLOR)
         dep = cv2.imread(item+DEP_EXT, cv2.CV_LOAD_IMAGE_UNCHANGED)
-        
         lbl = item.split('/')[-3]
-        y = [0]*len(categories)
-        y[categories.index(lbl)] = 1
+        #y = [0]*len(categories)
+        #y[categories.index(lbl)] = 1
         
         # preprocess data
         rgb = resize_img(rgb)
@@ -217,7 +216,7 @@ def get_data(batch, categories):
         # concatenate data
         rgb_train.append(rgb)
         dep_train.append(dep)
-        y_train.append(y)
+        y_train.append(lbl)
 
     return rgb_train, dep_train, y_train
 
