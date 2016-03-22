@@ -9,8 +9,6 @@ import matplotlib.pyplot as plt
 import cv2
 import pdb
 
-import fig2img
-
 IMG_S = 227
 
 
@@ -139,12 +137,12 @@ def colorize_depth(img):
     # scale the value from 0 to 255
     img = img.astype(float)
     img *= 255 / img.max()
-    img = img.astype(np.uint16)
+    img = img.astype(np.uint8)
 
     # colorize depth map
-    # dumb way to implement
-    plt.imsave('tmp.png', img)
-    res = cv2.imread('tmp.png')
+    res = cv2.applyColorMap(img, cv2.COLORMAP_JET)
+    res = cv2.cvtColor(res, cv2.COLOR_BGR2RGB)
+    #plt.imsave('tmp.png', res)
     return res
 
 

@@ -2,16 +2,19 @@ import os, sys, glob, pdb
 
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib
 import cv2
 
 DATA_LIST  = 'data_list_small.txt'
 INPUT_DIR  = '/media/data/washington_dataset/subset/rgbd-dataset/'
-OUTPUT_DIR = '/media/data/washington_dataset/subset/cropped/'
+OUTPUT_DIR1 = '/media/data/washington_dataset/subset/cropped/'
 
 RGB_EXT  = '.png'
 DEP_EXT  = '_depth.png'
 MASK_EXT = '_mask.png'
 LOC_EXT  = '_loc.txt'
+
+IMG_S = 227
 
 def get_data_list():
     fid = open(DATA_LIST, 'r+')
@@ -32,7 +35,7 @@ def get_id_list(path):
 
 def process(path, id):
     # make directories to store output
-    out_path = path.replace(INPUT_DIR, OUTPUT_DIR)
+    out_path = path.replace(INPUT_DIR, OUTPUT_DIR1)
     if not os.path.isdir(out_path):
         os.makedirs(out_path)
 
@@ -66,15 +69,15 @@ def process(path, id):
     rgb[mask==0] = 0
     dep[mask==0] = 0
 
-    # crop
+    # crop images
     rgb_crop = rgb[y0:y0+obj_h, x0:x0+obj_w]
     dep_crop = dep[y0:y0+obj_h, x0:x0+obj_w]
     
     # write to file
     cv2.imwrite(out_path+id+RGB_EXT, rgb_crop)
     cv2.imwrite(out_path+id+DEP_EXT, dep_crop)
-
-
+   
+    
 if __name__ == '__main__':
     data_list = get_data_list()
     for path in data_list:
