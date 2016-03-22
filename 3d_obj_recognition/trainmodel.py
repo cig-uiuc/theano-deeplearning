@@ -7,8 +7,14 @@ from keras.optimizers import SGD
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2
-import pdb
+import os, sys, glob, pdb
 
+
+DATA_PATH = '/media/data/washington_dataset/subset/cropped/'
+DATA_LIST_TRAIN = 'data_list_train.txt'
+DICT = 'dictionary.txt'
+RGB_EXT = '.png'
+DEP_EXT = '_depth.png'
 IMG_S = 227
 
 
@@ -147,7 +153,7 @@ def resize_img(img):
     return res
 
 
-def coloize_depth(img):
+def colorize_depth(img):
     # scale the value from 0 to 255
     img = img.astype(float)
     img *= 255 / img.max()
@@ -160,7 +166,64 @@ def coloize_depth(img):
     return res
 
 
+def get_data_list():
+    fid = open(DATA_LIST_TRAIN, 'r+')
+    data_list = fid.readlines()
+    fid.close()
+
+    for i in range(len(data_list)):
+        data_list[i] = DATA_PATH + data_list[i].rstrip()
+    return data_list
+
+
+def get_id_list(path):
+    pwd = os.getcwd()
+    os.chdir(path)
+    id_list = glob.glob('*'+DEP_EXT)
+    id_list = ' '.join(id_list).replace(DEP_EXT,'').split()
+    id_list.sort()
+    os.chdir(pwd)
+
+    return id_list
+
+
+def get_all_data_path():
+    all_data_path = []
+    data_list = get_data_list()
+    for path in data_list:
+        id_list = get_id_list(path)
+        id_list.sort()
+        for id in id_list:
+            all_data_path.append(path+id)
+    return all_data_path
+
+
+def get_data(batch, categories):
+    rgb_train = []
+    dep_train = []
+    y_train = []
+    for item in batch:
+        # load data
+        rgb = cv2.imread(item+RGB_EXT, cv2.CV_LOAD_IMAGE_COLOR)
+        dep = cv2.imread(item+DEP_EXT, cv2.CV_LOAD_IMAGE_UNCHANGED)
+        y = [0]*len(categories)
+        y[categories.index(lbl)] = 1
+        lbl = item.split('/')[-3]
+
+        # preprocess data
+        rgb = resize_img(rgb)
+        dep = colorize_depth(resize_img(dep))
+
+        # concatenate data
+        rgb_train.append(rgb)
+        dep_train.append(dep)
+        y_train.append(y)
+
+    return rgb_train, dep_train, y_train
+
+
 def main():
+    '''
     # dummy inputs (1 instance)
     tmp_path = '/media/data/washington_dataset/subset/cropped/banana/banana_1/'
     rgb_name = tmp_path+'banana_1_1_1.png'
@@ -172,17 +235,23 @@ def main():
     rgb = resize_img(rgb)
     dep = resize_img(dep)
     dep = colorize_depth(dep)
-    
-    
-
-
-
     '''
+
+    # load paths 
+    all_data_path = get_all_data_path()
+    categories = open(DICT, 'r+').read().splitlines()
+
     # generate model
-    archi = create_model()
-    RGB_model = train_model(archi)
-    D_model = train_model(archi)
-    '''
+    model = create_model()
+
+    # train model (by batch)
+    batch_size = 100
+    for batch_id in range(0, len(all_data_path), batch_size):
+        batch = all_data_path[batch_id:batch_id+batch_size]
+        rgb_train,dep_train,y_train = get_data(batch, categories)
+
+        RGB_model = train_model(model, rgb_train, y_train)
+        D_model = train_model(model, dep_train, y_train)
 
 
 if __name__ == '__main__':
