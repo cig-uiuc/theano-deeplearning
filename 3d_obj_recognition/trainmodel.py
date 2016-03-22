@@ -93,9 +93,8 @@ def create_model():
 
 def train_model(model):
     print 'Training model...'
-
-    
-    #model.fit(train_input, train_output, nb_epoch=e, batch_size=b, verbose=v)
+  
+    model.fit(x_train, y_train, nb_epoch=1, batch_size=1)
 
     return model
 
@@ -206,10 +205,11 @@ def get_data(batch, categories):
         # load data
         rgb = cv2.imread(item+RGB_EXT, cv2.CV_LOAD_IMAGE_COLOR)
         dep = cv2.imread(item+DEP_EXT, cv2.CV_LOAD_IMAGE_UNCHANGED)
+        
+        lbl = item.split('/')[-3]
         y = [0]*len(categories)
         y[categories.index(lbl)] = 1
-        lbl = item.split('/')[-3]
-
+        
         # preprocess data
         rgb = resize_img(rgb)
         dep = colorize_depth(resize_img(dep))
@@ -243,15 +243,18 @@ def main():
 
     # generate model
     model = create_model()
+    RGB_model = model
+    D_model = model
 
     # train model (by batch)
-    batch_size = 100
+    batch_size = 10
     for batch_id in range(0, len(all_data_path), batch_size):
         batch = all_data_path[batch_id:batch_id+batch_size]
         rgb_train,dep_train,y_train = get_data(batch, categories)
-
-        RGB_model = train_model(model, rgb_train, y_train)
-        D_model = train_model(model, dep_train, y_train)
+        pdb.set_trace()
+        
+        RGB_model = train_model(RGB_model, rgb_train, y_train)
+        D_model = train_model(D_model, dep_train, y_train)
 
 
 if __name__ == '__main__':
