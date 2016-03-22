@@ -15,37 +15,51 @@ IMG_S = 227
 def create_model():
     print 'Generating model architecture...'
 
-    # configuration
-    activation = 'relu'
-    nb_filter = 32
-    nb_row = 3
-    nb_col = 3
-    bd_mode = 'valid'
-    p_size = (2,2)
-    dropout = 0.25 # double check this
-
     model = Sequential()
 
-    # input layer
-    model.add(Dense())
+    # input layer???
+    #model.add(Dense())
     
     # conv-1 layer
-    model.add(Convolution2D(nb_filter, nb_row, nb_col, border_mode=bd_mode, input_shape=(3,IMG_S,IMG_S)))
-    model.add(Activation(activation))
-    model.add(MaxPooling2D(pool_size=p_size))
-    model.add(Dropout(dropout))
+    model.add(Convolution2D(96, 3, 3, border_mode='valid', input_shape=(3,IMG_S,IMG_S)))
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(2,2)))
+    model.add(Dropout(0.25))
 
     # conv-2 layer
+    model.add(Convolution2D(256, 3, 3, border_mode='valid'))
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(2,2)))
 
     # conv-3 layer
+    model.add(Convolution2D(384, 3, 3, border_mode='valid'))
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(2,2)))
+    model.add(Dropout(0.25))
 
     # conv-4 layer
+    model.add(Convolution2D(384, 3, 3, border_mode='valid'))
+    model.add(Activation('relu'))
+    model.add(Dropout(0.25))
 
     # conv-5 layer
+    model.add(Convolution2D(256, 3, 3, border_mode='valid'))
+    model.add(Activation('relu'))
+    model.add(Dropout(0.25))
 
     # fc6 layer
+    model.add(Flatten())
+    model.add(Dense(4096))
+    model.add(Activation('relu'))
+    model.add(Dropout(0.5))
 
     # fc7 layer
+    model.add(Dense(4096))
+    model.add(Activation('softmax'))
+
+    # compile model
+    sgd = SGD(lr=0.1, decay=1e-6, momentum=0.9, nesterov=True)
+    model.compile(loss='categorical_crossentropy', optimizer=sgd)
 
     
 
@@ -133,7 +147,7 @@ def resize_img(img):
     return res
 
 
-def colorize_depth(img):
+def coloize_depth(img):
     # scale the value from 0 to 255
     img = img.astype(float)
     img *= 255 / img.max()
@@ -147,20 +161,24 @@ def colorize_depth(img):
 
 
 def main():
+    # dummy inputs (1 instance)
     tmp_path = '/media/data/washington_dataset/subset/cropped/banana/banana_1/'
     rgb_name = tmp_path+'banana_1_1_1.png'
-    d_name = tmp_path+'banana_1_1_1_depth.png'
+    dep_name = tmp_path+'banana_1_1_1_depth.png'
     rgb = cv2.imread(rgb_name, cv2.CV_LOAD_IMAGE_COLOR)
-    d = cv2.imread(d_name, cv2.CV_LOAD_IMAGE_UNCHANGED)
+    dep = cv2.imread(dep_name, cv2.CV_LOAD_IMAGE_UNCHANGED)
+    
+    # preprocess data
     rgb = resize_img(rgb)
-    d = resize_img(d)
-    d = colorize_depth(d)
+    dep = resize_img(dep)
+    dep = colorize_depth(dep)
     
     
 
 
 
     '''
+    # generate model
     archi = create_model()
     RGB_model = train_model(archi)
     D_model = train_model(archi)
