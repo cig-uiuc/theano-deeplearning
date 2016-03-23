@@ -1,5 +1,6 @@
 keras_vgg19/vgg19_weights.h5
 keras_dario_sample.py
+3d_obj_recognition/train_model_duc.py
 
 *.swp
 *~

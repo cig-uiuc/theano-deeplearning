@@ -18,38 +18,44 @@ DEP_EXT = '_depth.png'
 IMG_S = 227
 
 
-def create_model():
+def create_model(nb_class):
     model = Sequential()
 
     # input layer???
     #model.add(Dense())
     
     # conv-1 layer
-    model.add(Convolution2D(96, 3, 3, border_mode='valid', input_shape=(3,IMG_S,IMG_S)))
+    conv_1 = Convolution2D(96, 3, 3, border_mode='valid', input_shape=(3,IMG_S,IMG_S))
+    model.add(conv_1)
     model.add(Activation('relu'))
     model.add(MaxPooling2D(pool_size=(2,2)))
     model.add(Dropout(0.25))
 
     # conv-2 layer
-    model.add(Convolution2D(256, 3, 3, border_mode='valid'))
+    conv_2 = Convolution2D(256, 3, 3, border_mode='valid')
+    model.add(conv_2)
     model.add(Activation('relu'))
     model.add(MaxPooling2D(pool_size=(2,2)))
 
     # conv-3 layer
-    model.add(Convolution2D(384, 3, 3, border_mode='valid'))
+    conv_3 = Convolution2D(384, 3, 3, border_mode='valid')
+    model.add(conv_3)
     model.add(Activation('relu'))
     model.add(MaxPooling2D(pool_size=(2,2)))
     model.add(Dropout(0.25))
 
     # conv-4 layer
-    model.add(Convolution2D(384, 3, 3, border_mode='valid'))
+    conv_4 = Convolution2D(384, 3, 3, border_mode='valid')
+    model.add(conv_4)
     model.add(Activation('relu'))
     model.add(Dropout(0.25))
 
     # conv-5 layer
-    model.add(Convolution2D(256, 3, 3, border_mode='valid'))
+    conv_5 = Convolution2D(256, 3, 3, border_mode='valid')
+    model.add(conv_5)
     model.add(Activation('relu'))
     model.add(Dropout(0.25))
+    #print conv_5.output_shape # = (256 x 22 x 22)
 
     # fc6 layer
     model.add(Flatten())
@@ -59,12 +65,18 @@ def create_model():
 
     # fc7 layer
     model.add(Dense(4096))
+    model.add(Activation('relu'))
+    model.add(Dropout(0.5))
+
+    # dummy output layer ==> need to change when fusing the RGB and D models
+    model.add(Dense(nb_class))
     model.add(Activation('softmax'))
 
+    
     # compile model
     sgd = SGD(lr=0.1, decay=1e-6, momentum=0.9, nesterov=True)
     model.compile(loss='categorical_crossentropy', optimizer=sgd)
-    #model.compile(loss='caterorical_crossentropy')
+    #model.compile(loss='caterorical_crossentropy', optimizer=None)
 
     
 
@@ -203,9 +215,9 @@ def get_data(batch, categories):
         rgb = cv2.imread(item+RGB_EXT, cv2.CV_LOAD_IMAGE_COLOR)
         dep = cv2.imread(item+DEP_EXT, cv2.CV_LOAD_IMAGE_UNCHANGED)
         lbl = item.split('/')[-3]
-        #y = [0]*len(categories)
-        #y[categories.index(lbl)] = 1
-        y = categories.index(lbl)
+        y = [0]*len(categories)
+        y[categories.index(lbl)] = 1
+        #y = categories.index(lbl)
         
         # preprocess data
         rgb = resize_img(rgb)
@@ -244,9 +256,8 @@ def main():
 
     # generate model
     print 'Generating model architecture...'
-    model = create_model()
-    RGB_model = model
-    D_model = model
+    RGB_model = create_model(len(categories))
+    D_model = create_model(len(categories))
 
     # train model (by batch)
     print 'Training model...'
