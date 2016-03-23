@@ -19,8 +19,6 @@ IMG_S = 227
 
 
 def create_model():
-    print 'Generating model architecture...'
-
     model = Sequential()
 
     # input layer???
@@ -66,6 +64,7 @@ def create_model():
     # compile model
     sgd = SGD(lr=0.1, decay=1e-6, momentum=0.9, nesterov=True)
     model.compile(loss='categorical_crossentropy', optimizer=sgd)
+    #model.compile(loss='caterorical_crossentropy')
 
     
 
@@ -91,10 +90,8 @@ def create_model():
     return model
 
 
-def train_model(model, x_train, y_train):
-    print 'Training model...'
-  
-    model.fit(x_train, y_train, nb_epoch=1, batch_size=1)
+def train_model(model, x_train, y_train, b_size):
+    model.fit(x_train, y_train, nb_epoch=1, batch_size=b_size)
 
     return model
 
@@ -208,17 +205,22 @@ def get_data(batch, categories):
         lbl = item.split('/')[-3]
         #y = [0]*len(categories)
         #y[categories.index(lbl)] = 1
+        y = categories.index(lbl)
         
         # preprocess data
         rgb = resize_img(rgb)
         dep = colorize_depth(resize_img(dep))
 
+        # transpose to match model input
+        rgb = rgb.transpose(2,0,1)
+        dep = dep.transpose(2,0,1)
+
         # concatenate data
         rgb_train.append(rgb)
         dep_train.append(dep)
-        y_train.append(lbl)
+        y_train.append(y)
 
-    return rgb_train, dep_train, y_train
+    return np.array(rgb_train), np.array(dep_train), np.array(y_train)
 
 
 def main():
@@ -241,19 +243,23 @@ def main():
     categories = open(DICT, 'r+').read().splitlines()
 
     # generate model
+    print 'Generating model architecture...'
     model = create_model()
     RGB_model = model
     D_model = model
 
     # train model (by batch)
+    print 'Training model...'
     batch_size = 10
     for batch_id in range(0, len(all_data_path), batch_size):
+        print 'Training batch', batch_id/batch_size+1, 'of', int(np.ceil(1.0*len(all_data_path)/batch_size)), '...'
+
         batch = all_data_path[batch_id:batch_id+batch_size]
-        rgb_train,dep_train,y_train = get_data(batch, categories)
-        pdb.set_trace()
+        rgb_train,dep_train,y_train = get_data(batch,categories)
+        #pdb.set_trace()
         
-        RGB_model = train_model(RGB_model, rgb_train, y_train)
-        D_model = train_model(D_model, dep_train, y_train)
+        RGB_model = train_model(RGB_model, rgb_train, y_train, len(y_train))
+        D_model = train_model(D_model, dep_train, y_train, len(y_train))
 
 
 if __name__ == '__main__':
