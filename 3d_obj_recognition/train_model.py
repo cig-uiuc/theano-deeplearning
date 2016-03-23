@@ -8,6 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import cv2
 import os, sys, glob, pdb
+import pickle
 
 
 DATA_PATH = '/media/data/washington_dataset/subset/cropped/'
@@ -21,9 +22,6 @@ IMG_S = 227
 def create_model(nb_class):
     model = Sequential()
 
-    # input layer???
-    #model.add(Dense())
-    
     # conv-1 layer
     conv_1 = Convolution2D(96, 3, 3, border_mode='valid', input_shape=(3,IMG_S,IMG_S))
     model.add(conv_1)
@@ -76,35 +74,12 @@ def create_model(nb_class):
     # compile model
     sgd = SGD(lr=0.1, decay=1e-6, momentum=0.9, nesterov=True)
     model.compile(loss='categorical_crossentropy', optimizer=sgd)
-    #model.compile(loss='caterorical_crossentropy', optimizer=None)
-
-    
-
-    '''
-    model.add(Dense(output_dim=num_feats_out, input_dim=num_feats_in, init='uniform'))
-    model.add(Activation('relu'))
-    model.add(Dropout(dropouts))
-
-    # Add hidden layers
-    for i in range(num_hidden_layers):
-        model.add(Dense(output_dim=num_feats_out))
-        model.add(Activation('relu'))
-        model.add(Dropout(dropouts))
-
-    # Add output layers
-    model.add(Dense(output_dim=1))
-    model.add(Activation('linear'))
-
-    # Compile model
-    model.compile(loss='mse', optimizer='sgd')
-    '''
 
     return model
 
 
 def train_model(model, x_train, y_train, b_size):
     model.fit(x_train, y_train, nb_epoch=1, batch_size=b_size)
-
     return model
 
 
@@ -261,16 +236,20 @@ def main():
 
     # train model (by batch)
     print 'Training model...'
-    batch_size = 10
+    batch_size = 100
+    total_batch = int(np.ceil(1.0*len(all_data_path)/batch_size))
     for batch_id in range(0, len(all_data_path), batch_size):
-        print 'Training batch', batch_id/batch_size+1, 'of', int(np.ceil(1.0*len(all_data_path)/batch_size)), '...'
+        print 'Training batch', batch_id/batch_size+1, 'of', total_batch, '...'
 
         batch = all_data_path[batch_id:batch_id+batch_size]
         rgb_train,dep_train,y_train = get_data(batch,categories)
-        #pdb.set_trace()
         
         RGB_model = train_model(RGB_model, rgb_train, y_train, len(y_train))
         D_model = train_model(D_model, dep_train, y_train, len(y_train))
+
+    # save models (if needed)
+    with open('rgbd_model.pckl', 'w') as f:
+        pickle.dump([RGB_model, D_model], f)
 
 
 if __name__ == '__main__':
