@@ -101,16 +101,25 @@ def resize_img(img):
         
         # duplicate top and bottom rows
         if im_c==3: # color images
-            top = np.dstack([img[0,:,:]]*nb_top)
-            bottom = np.dstack([img[-1,:,:]]*nb_bottom)
-            top = top.transpose(2,0,1)
-            bottom = bottom.transpose(2,0,1)
+            if nb_top!=0:
+                top = np.dstack([img[0,:,:]]*nb_top)
+                top = top.transpose(2,0,1)
+            if nb_bottom!=0:
+                bottom = np.dstack([img[-1,:,:]]*nb_bottom)
+                bottom = bottom.transpose(2,0,1)
         else: # depth images
-            top = np.tile(img[0,:], [nb_top,1])
-            bottom = np.tile(img[-1,:], [nb_bottom,1])
+            if nb_top!=0:
+                top = np.tile(img[0,:], [nb_top,1])
+            if nb_bottom!=0:
+                bottom = np.tile(img[-1,:], [nb_bottom,1])
 
         # concatenate with the original image
-        res = np.concatenate((top,img,bottom), axis=0)
+        if nb_top==0 and nb_bottom!=0:
+            res = np.concatenate((img,bottom), axis=0)
+        elif nb_top!=0 and nb_bottom==0:
+            res = np.concatenate((top,img), axis=0)
+        else:
+            res = np.concatenate((top,img,bottom), axis=0)
     elif im_w<im_h:
         new_w = int(im_w*IMG_S/im_h)
         img = cv2.resize(img, (new_w,IMG_S))
@@ -121,15 +130,25 @@ def resize_img(img):
 
         # duplicate left and right cols
         if im_c==3: # color images
-            left = np.dstack([img[:,0,:]]*nb_left)
-            right = np.dstack([img[:,-1,:]]*nb_right)
-            left = left.transpose(0,2,1)
-            right = right.transpose(0,2,1)
+            if nb_left!=0:
+                left = np.dstack([img[:,0,:]]*nb_left)
+                left = left.transpose(0,2,1)
+            if nb_right!=0:
+                right = np.dstack([img[:,-1,:]]*nb_right)
+                right = right.transpose(0,2,1)
         else: # depth images
-            left = np.tile(img[:,0], [nb_left,1]).transpose()
-            right = np.tile(img[:,-1], [nb_right,1]).transpose()
-
-        res = np.concatenate((left,img,right), axis=1)
+            if nb_left!=0:
+                left = np.tile(img[:,0], [nb_left,1]).transpose()
+            if nb_right!=0:
+                right = np.tile(img[:,-1], [nb_right,1]).transpose()
+        
+        # concatenate with the original image
+        if nb_left==0 and nb_right!=0:
+            res = np.concatenate((img,right), axis=1)
+        elif nb_left!=0 and nb_right==0:
+            res = np.concatenate((left,img), axis=1)
+        else:
+            res = np.concatenate((left,img,right), axis=1)
     else:
         res = cv2.resize(img, (IMG_S,IMG_S))
 
@@ -144,7 +163,7 @@ def colorize_depth(img):
 
     # colorize depth map
     res = cv2.applyColorMap(img, cv2.COLORMAP_JET)
-    res = cv2.cvtColor(res, cv2.COLOR_BGR2RGB)
+    #res = cv2.cvtColor(res, cv2.COLOR_BGR2RGB)
     #plt.imsave('tmp.png', res)
     return res
 
@@ -195,8 +214,10 @@ def get_data(batch, categories):
         #y = categories.index(lbl)
         
         # preprocess data
+        #if batch.index(item)==59:
+        #    pdb.set_trace()
         rgb = resize_img(rgb)
-        dep = colorize_depth(resize_img(dep))
+        dep = resize_img(colorize_depth(dep))
 
         # transpose to match model input
         rgb = rgb.transpose(2,0,1)
@@ -221,8 +242,11 @@ def main():
     
     # preprocess data
     rgb = resize_img(rgb)
+    dep = colorize_depth(dep)  
     dep = resize_img(dep)
-    dep = colorize_depth(dep)
+    cv2.imwrite('rgb.png', rgb)
+    cv2.imwrite('dep.png', dep)
+    pdb.set_trace()
     '''
 
     # load paths 

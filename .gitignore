@@ -3,3 +3,4 @@ keras_dario_sample.py
 
 *.swp
 *~
+*.pckl
