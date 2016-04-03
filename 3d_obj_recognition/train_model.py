@@ -1,8 +1,10 @@
 from keras.models import Sequential
+from keras.models import Graph
 from keras.layers import Dense, Activation, Dropout, Flatten
 from keras.layers import Convolution2D, MaxPooling2D
 from keras.callbacks import EarlyStopping
 from keras.optimizers import SGD
+#from keras.utils.visualize_util import plot
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -74,6 +76,8 @@ def create_model(nb_class):
     # compile model
     sgd = SGD(lr=0.1, decay=1e-6, momentum=0.9, nesterov=True)
     model.compile(loss='categorical_crossentropy', optimizer=sgd)
+
+    #plot(model, 'train_model.png')
 
     return model
 
