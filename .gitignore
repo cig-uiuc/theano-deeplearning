@@ -4,3 +4,7 @@ keras_dario_sample.py
 *.swp
 *.pckl
 *.pyc
+
+*.h5
+*.json
+*.caffemodel

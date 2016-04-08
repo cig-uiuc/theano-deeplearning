@@ -122,11 +122,13 @@ def create_single_stream(nb_classes):
     # conv-4 layer
     conv4 = Convolution2D(384, 3, 3, border_mode='valid', activation='relu')
     model.add(conv4)
+    model.add(MaxPooling2D(pool_size=(2,2)))
     model.add(Dropout(0.25))
 
     # conv-5 layer
     conv5 = Convolution2D(256, 3, 3, border_mode='valid', activation='relu')
     model.add(conv5)
+    model.add(MaxPooling2D(pool_size=(2,2)))
     model.add(Dropout(0.25))
 
     # fc6 layer
@@ -170,20 +172,22 @@ def reuse_single_stream(trained_layers):
     # conv-4 layer
     conv4 = Convolution2D(384, 3, 3, border_mode='valid', activation='relu', weights=trained_layers[9].get_weights())
     model.add(conv4)
+    model.add(MaxPooling2D(pool_size=(2,2)))
     model.add(Dropout(0.25))
 
     # conv-5 layer
-    conv5 = Convolution2D(256, 3, 3, border_mode='valid', activation='relu', weights=trained_layers[11].get_weights())
+    conv5 = Convolution2D(256, 3, 3, border_mode='valid', activation='relu', weights=trained_layers[12].get_weights())
     model.add(conv5)
+    model.add(MaxPooling2D(pool_size=(2,2)))
     model.add(Dropout(0.25))
 
     # fc6 layer
     model.add(Flatten())
-    model.add(Dense(4096, weights=trained_layers[14].get_weights()))
+    model.add(Dense(4096, weights=trained_layers[16].get_weights()))
     model.add(Dropout(0.25))
 
     # fc7 layer
-    model.add(Dense(4096, activation='softmax', weights=trained_layers[16].get_weights()))
+    model.add(Dense(4096, activation='softmax', weights=trained_layers[18].get_weights()))
     model.add(Dropout(0.25))
 
     # compile model
@@ -191,9 +195,9 @@ def reuse_single_stream(trained_layers):
     return model
 
 
-def create_model_merge(trained_rgb_stream, trained_dep_stream, nb_classes):
-    rgb_stream = reuse_single_stream(trained_rgb_stream.layers)
-    dep_stream = reuse_single_stream(trained_dep_stream.layers)
+def create_model_merge(rgb_layers, dep_layers, nb_classes):
+    rgb_stream = reuse_single_stream(rgb_layers)
+    dep_stream = reuse_single_stream(dep_layers)
 
     model = Sequential()
 
