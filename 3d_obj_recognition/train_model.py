@@ -16,9 +16,11 @@ import EitelModel as eitel
 import data_processor as dtp
 
 SAVE_MODEL = True
-DICT = 'dictionary.txt'
+DICT = 'lists/dictionary.txt'
+MODEL_LOC = 'models/'
 RGB_MODEL_NAME = 'rgb_stream'
 DEP_MODEL_NAME = 'dep_stream'
+FUS_MODEL_NAME = 'fusion_model'
 STRUCT_EXT = '.json'
 WEIGHT_EXT = '.h5'
 
@@ -38,7 +40,7 @@ def main():
     total_batch = int(np.ceil(1.0*nb_samples/batch_size))
 
     # generate stream model------------------------------------------------------
-    if not os.path.isfile(RGB_MODEL_NAME+STRUCT_EXT) or not os.path.isfile(RGB_MODEL_NAME+WEIGHT_EXT):
+    if not os.path.isfile(MODEL_LOC+RGB_MODEL_NAME+STRUCT_EXT) or not os.path.isfile(MODEL_LOC+RGB_MODEL_NAME+WEIGHT_EXT):
         print 'Generating RGB stream models...'
         rgb_stream = eitel.create_single_stream(len(categories))
         plot(rgb_stream, 'stream_model.png')
@@ -54,16 +56,16 @@ def main():
     
         if SAVE_MODEL:
             json_str = rgb_stream.to_json()
-            with open(RGB_MODEL_NAME+STRUCT_EXT, 'wb') as f:
+            with open(MODEL_LOC+RGB_MODEL_NAME+STRUCT_EXT, 'wb') as f:
                 f.write(json_str)
             f.close()
-            rgb_stream.save_weights(RGB_MODEL_NAME+WEIGHT_EXT, overwrite=True)
+            rgb_stream.save_weights(MODEL_LOC+RGB_MODEL_NAME+WEIGHT_EXT, overwrite=True)
             del rgb_stream
     else:
         print 'RGB model exists...'
 
     # generate stream model-----------------------------------------------------
-    if not os.path.isfile(DEP_MODEL_NAME+STRUCT_EXT) or not os.path.isfile(DEP_MODEL_NAME+WEIGHT_EXT):
+    if not os.path.isfile(MODEL_LOC+DEP_MODEL_NAME+STRUCT_EXT) or not os.path.isfile(MODEL_LOC+DEP_MODEL_NAME+WEIGHT_EXT):
         print 'Generating depth stream models...'
         dep_stream = eitel.create_single_stream(len(categories))
 
@@ -78,10 +80,10 @@ def main():
     
         if SAVE_MODEL:
             json_str = dep_stream.to_json()
-            with open(DEP_MODEL_NAME+STRUCT_EXT, 'wb') as f:
+            with open(MODEL_LOC+DEP_MODEL_NAME+STRUCT_EXT, 'wb') as f:
                 f.write(json_str)
             f.close()
-            dep_stream.save_weights(DEP_MODEL_NAME+WEIGHT_EXT, overwrite=True)
+            dep_stream.save_weights(MODEL_LOC+DEP_MODEL_NAME+WEIGHT_EXT, overwrite=True)
             del dep_stream
     else:
         print 'Depth model exitsts...'
@@ -89,13 +91,13 @@ def main():
 
     # reload the model weights----------------------------------------------------
     print 'Loading weights...'
-    rgb_stream = model_from_json(open(RGB_MODEL_NAME+STRUCT_EXT).read())
-    rgb_stream.load_weights(RGB_MODEL_NAME+WEIGHT_EXT)
+    rgb_stream = model_from_json(open(MODEL_LOC+RGB_MODEL_NAME+STRUCT_EXT).read())
+    rgb_stream.load_weights(MODEL_LOC+RGB_MODEL_NAME+WEIGHT_EXT)
     rgb_layers = rgb_stream.layers
     del rgb_stream
 
-    dep_stream = model_from_json(open(DEP_MODEL_NAME+STRUCT_EXT).read())
-    dep_stream.load_weights(DEP_MODEL_NAME+WEIGHT_EXT)
+    dep_stream = model_from_json(open(MODEL_LOC+DEP_MODEL_NAME+STRUCT_EXT).read())
+    dep_stream.load_weights(MODEL_LOC+DEP_MODEL_NAME+WEIGHT_EXT)
     dep_layers = dep_stream.layers
     del dep_stream
 
@@ -121,7 +123,11 @@ def main():
         fusion_model = train_model(fusion_model, [rgb_x_train, dep_x_train], y_train, len(y_train))
 
     if SAVE_MODEL:
-        fusion_model.save_weights('fusion_model.h5', overwrite=True)
+        json_str = fusion_model.to_json()
+        with open(MODEL_LOC+FUS_MODEL_NAME+STRUCT_EXT, 'wb') as f:
+            f.write(json_str)
+        f.close()
+        fusion_model.save_weights(MODEL_LOC+FUS_MODEL_NAME+WEIGHT_EXT, overwrite=True)
 
 
 if __name__ == '__main__':

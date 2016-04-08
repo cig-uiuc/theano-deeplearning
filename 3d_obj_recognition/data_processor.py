@@ -6,8 +6,7 @@ import pickle
 
 
 DATA_PATH = '/media/data/washington_dataset/subset/cropped/'
-DATA_LIST_TRAIN = 'data_list_train.txt'
-DICT = 'dictionary.txt'
+DATA_LIST_TRAIN = 'lists/data_list_train.txt'
 RGB_EXT = '.png'
 DEP_EXT = '_depth.png'
 IMG_S = 227
@@ -134,6 +133,7 @@ def get_data(batch, categories):
     rgb_train = []
     dep_train = []
     y_train = []
+
     for item in batch:
         # load data
         rgb = cv2.imread(item+RGB_EXT, cv2.CV_LOAD_IMAGE_COLOR)
@@ -144,11 +144,17 @@ def get_data(batch, categories):
         #y = categories.index(lbl)
         
         # preprocess data
-        #if batch.index(item)==59:
-        #    pdb.set_trace()
         rgb = resize_img(rgb)
         dep = resize_img(colorize_depth(dep))
 
+        '''
+        id=item.split('/')[-1]
+        if id=='banana_1_1_1':
+            pdb.set_trace()
+            cv2.imwrite('banana_1_1_1_resize.png', rgb)
+            cv2.imwrite('banana_1_1_1_depth_resize.png', dep)
+        '''
+        
         # transpose to match model input
         rgb = rgb.transpose(2,0,1)
         dep = dep.transpose(2,0,1)

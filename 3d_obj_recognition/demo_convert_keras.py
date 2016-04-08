@@ -33,7 +33,7 @@ def load_converted_model():
     pdb.set_trace()
 
 
-def convert_model()
+def convert_model():
     load_path = 'keras_marcbs/caffe/models/'
     store_path = 'pretrained/'
     prototxt = 'train_val_for_keras.prototxt'
