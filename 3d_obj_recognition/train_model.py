@@ -56,9 +56,7 @@ def main():
     
         if SAVE_MODEL:
             json_str = rgb_stream.to_json()
-            with open(MODEL_LOC+RGB_MODEL_NAME+STRUCT_EXT, 'wb') as f:
-                f.write(json_str)
-            f.close()
+            open(MODEL_LOC+RGB_MODEL_NAME+STRUCT_EXT, 'w').write(json_str)
             rgb_stream.save_weights(MODEL_LOC+RGB_MODEL_NAME+WEIGHT_EXT, overwrite=True)
             del rgb_stream
     else:
@@ -80,9 +78,7 @@ def main():
     
         if SAVE_MODEL:
             json_str = dep_stream.to_json()
-            with open(MODEL_LOC+DEP_MODEL_NAME+STRUCT_EXT, 'wb') as f:
-                f.write(json_str)
-            f.close()
+            open(MODEL_LOC+DEP_MODEL_NAME+STRUCT_EXT, 'w').write(json_str)
             dep_stream.save_weights(MODEL_LOC+DEP_MODEL_NAME+WEIGHT_EXT, overwrite=True)
             del dep_stream
     else:
@@ -124,9 +120,7 @@ def main():
 
     if SAVE_MODEL:
         json_str = fusion_model.to_json()
-        with open(MODEL_LOC+FUS_MODEL_NAME+STRUCT_EXT, 'wb') as f:
-            f.write(json_str)
-        f.close()
+        open(MODEL_LOC+FUS_MODEL_NAME+STRUCT_EXT, 'w').write(json_str)
         fusion_model.save_weights(MODEL_LOC+FUS_MODEL_NAME+WEIGHT_EXT, overwrite=True)
 
 
