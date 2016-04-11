@@ -6,7 +6,7 @@ import pickle
 
 
 DATA_PATH = '/media/data/washington_dataset/subset/cropped/'
-DATA_LIST_TRAIN = 'lists/data_list_train.txt'
+DATA_LIST_TRAIN = 'lists/data_list_small.txt'
 RGB_EXT = '.png'
 DEP_EXT = '_depth.png'
 IMG_S = 227

@@ -5,9 +5,15 @@ import matplotlib.pyplot as plt
 import matplotlib
 import cv2
 
+'''
 DATA_LIST  = 'data_list_small.txt'
 INPUT_DIR  = '/media/data/washington_dataset/subset/rgbd-dataset/'
 OUTPUT_DIR1 = '/media/data/washington_dataset/subset/cropped/'
+'''
+
+DATA_LIST  = 'data_list_full.txt'
+INPUT_DIR  = '/media/data/washington_dataset/fullset/rgbd-dataset/'
+OUTPUT_DIR1 = '/media/data/washington_dataset/fullset/cropped/'
 
 RGB_EXT  = '.png'
 DEP_EXT  = '_depth.png'

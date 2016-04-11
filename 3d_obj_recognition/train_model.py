@@ -16,7 +16,7 @@ import EitelModel as eitel
 import data_processor as dtp
 
 SAVE_MODEL = True
-DICT = 'lists/dictionary.txt'
+DICT = 'lists/dictionary_small.txt'
 MODEL_LOC = 'models/'
 RGB_MODEL_NAME = 'rgb_stream'
 DEP_MODEL_NAME = 'dep_stream'
