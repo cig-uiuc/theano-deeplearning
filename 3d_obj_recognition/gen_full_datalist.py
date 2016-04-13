@@ -23,7 +23,7 @@ def main():
         objects.sort()
 
         for obj in objects:
-            f_data.write(id+'/'+obj+'\n')
+            f_data.write(id+'/'+obj+'/'+'\n')
 
         os.chdir('../')
 

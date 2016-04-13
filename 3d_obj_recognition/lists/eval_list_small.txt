@@ -1,0 +1,5 @@
+apple/apple_2/
+ball/ball_2/
+banana/banana_2/
+bell_pepper/bell_pepper_2/
+binder/binder_2/

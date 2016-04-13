@@ -1,7 +1,7 @@
 from keras.models import Graph, Sequential
 from keras.layers import Dense, Dropout, Activation , Flatten, Merge
 from keras.layers import Convolution2D, MaxPooling2D
-from keras.optimizers import SGD
+from keras.optimizers import SGD, Adagrad
 from keras.utils.visualize_util import plot
 import keras.backend as K
 
@@ -56,7 +56,7 @@ def create_single_stream(nb_classes):
     model.add(Dense(nb_classes, activation='softmax'))
 
     # compile model
-    model.compile(loss='categorical_crossentropy', optimizer='sgd')
+    model.compile(loss='categorical_crossentropy', optimizer='adagrad')
     return model
 
 
@@ -103,7 +103,7 @@ def reuse_single_stream(trained_layers):
     model.add(Dropout(0.25))
 
     # compile model
-    model.compile(loss='categorical_crossentropy', optimizer='sgd')
+    model.compile(loss='categorical_crossentropy', optimizer='adagrad')
     return model
 
 
@@ -123,20 +123,19 @@ def create_model_merge(rgb_layers, dep_layers, nb_classes):
     model.add(Dense(nb_classes, activation='softmax'))
 
     # compile model
-    model.compile(loss='categorical_crossentropy', optimizer='sgd')
-    #model.compile(loss=fus_loss, optimizer='sgd')
+    model.compile(loss='categorical_crossentropy', optimizer='adagrad')
 
     return model
 
-
+'''
 def train_model(model, x_train, y_train, b_size):
-    model.fit(x_train, y_train, nb_epoch=1, batch_size=b_size)
+    model.fit(x_train, y_train, nb_epoch=5, batch_size=b_size)
     return model
 
-
-def stream_loss(x):
-    return x
+def stream_loss(y_true, y_pred):
+    return K.categorical_crossentropy(y_true, y_pred)
 
 def fus_loss(y_true, y_pred):
-    # reuse backend's mean squared errors
-    return K.mean(K.square(y_true - y_pred), axis=-1)
+    # dummy code: reuse backend's categorical crossentropy
+    return K.categorical_crossentropy(y_true, y_pred)
+'''

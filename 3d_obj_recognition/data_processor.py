@@ -2,16 +2,24 @@ import numpy as np
 import matplotlib.pyplot as plt
 import cv2
 import os, sys, glob, pdb
-import pickle
+#import pickle
 
 
-DATA_PATH = '/media/data/washington_dataset/subset/cropped/'
-DATA_LIST_TRAIN = 'lists/data_list_small.txt'
+
+#DATA_PATH = '/media/data/washington_dataset/subset/cropped/'
+#DATA_LIST_TRAIN = 'lists/data_list_small.txt'
+#DATA_PATH = '/media/data/washington_dataset/fullset/cropped/'
+
+#DATA_LIST_TRAIN = 'lists/data_list_full.txt'
+#DATA_LIST_TRAIN = 'lists/data_list_small.txt'
+#TRAIN_LIST = 'lists/train_list_small.txt'
+
 RGB_EXT = '.png'
 DEP_EXT = '_depth.png'
 IMG_S = 227
 
 
+# Data preprocessing-----------------------------------------------------------------
 def resize_img(img):
     if len(img.shape)==3:
         im_h,im_w,im_c = img.shape
@@ -97,6 +105,8 @@ def colorize_depth(img):
     return res
 
 
+#Data loading---------------------------------------------------------------------
+'''
 def get_data_list():
     fid = open(DATA_LIST_TRAIN, 'r+')
     data_list = fid.readlines()
@@ -105,9 +115,9 @@ def get_data_list():
     for i in range(len(data_list)):
         data_list[i] = DATA_PATH + data_list[i].rstrip()
     return data_list
+'''
 
-
-def get_id_list(path):
+def __get_id_list__(path):
     pwd = os.getcwd()
     os.chdir(path)
     id_list = glob.glob('*'+DEP_EXT)
@@ -117,7 +127,7 @@ def get_id_list(path):
 
     return id_list
 
-
+'''
 def get_all_data_path():
     all_data_path = []
     data_list = get_data_list()
@@ -127,17 +137,33 @@ def get_all_data_path():
         for id in id_list:
             all_data_path.append(path+id)
     return all_data_path
+'''
+
+def sample_paths_from_list(data_loc, list_name):
+    '''
+    Return the paths to all samples (without specific extensions, e.g. _depth.png) from list_name
+    '''
+    paths = []
+    instances = open(list_name, 'r').read().splitlines()
+    for instance in instances:
+        id_list = __get_id_list__(data_loc+instance)
+        for id in id_list:
+            paths.append(instance+id)
+    return paths
 
 
-def get_data(batch, categories):
+def load_data(batch, categories, data_loc):
+    '''
+    Load data (RGB, D, and class vector) by batch
+    '''
     rgb_train = []
     dep_train = []
     y_train = []
 
     for item in batch:
         # load data
-        rgb = cv2.imread(item+RGB_EXT, cv2.CV_LOAD_IMAGE_COLOR)
-        dep = cv2.imread(item+DEP_EXT, cv2.CV_LOAD_IMAGE_UNCHANGED)
+        rgb = cv2.imread(data_loc+item+RGB_EXT, cv2.CV_LOAD_IMAGE_COLOR)
+        dep = cv2.imread(data_loc+item+DEP_EXT, cv2.CV_LOAD_IMAGE_UNCHANGED)
         lbl = item.split('/')[-3]
         y = [0]*len(categories)
         y[categories.index(lbl)] = 1

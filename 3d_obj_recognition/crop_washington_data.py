@@ -6,12 +6,12 @@ import matplotlib
 import cv2
 
 '''
-DATA_LIST  = 'data_list_small.txt'
+DATA_LIST  = 'lists/data_list_small.txt'
 INPUT_DIR  = '/media/data/washington_dataset/subset/rgbd-dataset/'
 OUTPUT_DIR1 = '/media/data/washington_dataset/subset/cropped/'
 '''
 
-DATA_LIST  = 'data_list_full.txt'
+DATA_LIST  = 'lists/data_list_full.txt'
 INPUT_DIR  = '/media/data/washington_dataset/fullset/rgbd-dataset/'
 OUTPUT_DIR1 = '/media/data/washington_dataset/fullset/cropped/'
 
@@ -90,5 +90,5 @@ if __name__ == '__main__':
         print path
         id_list = get_id_list(path)
         for id in id_list:
-            process(path, id)
+            process(path,id)
 
