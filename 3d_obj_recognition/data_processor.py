@@ -2,21 +2,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import cv2
 import os, sys, glob, pdb
-#import pickle
-
-
-
-#DATA_PATH = '/media/data/washington_dataset/subset/cropped/'
-#DATA_LIST_TRAIN = 'lists/data_list_small.txt'
-#DATA_PATH = '/media/data/washington_dataset/fullset/cropped/'
-
-#DATA_LIST_TRAIN = 'lists/data_list_full.txt'
-#DATA_LIST_TRAIN = 'lists/data_list_small.txt'
-#TRAIN_LIST = 'lists/train_list_small.txt'
 
 RGB_EXT = '.png'
 DEP_EXT = '_depth.png'
 IMG_S = 227
+MEAN_IMG = './pretrained/ilsvrc_2012_mean.npy'
 
 
 # Data preprocessing-----------------------------------------------------------------
@@ -160,9 +150,17 @@ def load_data(batch, categories, data_loc):
     dep_train = []
     y_train = []
 
+    # mean image from alexnet
+    mean_img = np.load(MEAN_IMG)
+    mean_img = mean_img.transpose(1,2,0)
+    mean_img = cv2.resize(mean_img, (IMG_S,IMG_S))
+    mean_img = mean_img.transpose(2,0,1)
+    mean_img = np.float32(mean_img)
+
     for item in batch:
         # load data
         rgb = cv2.imread(data_loc+item+RGB_EXT, cv2.CV_LOAD_IMAGE_COLOR)
+
         dep = cv2.imread(data_loc+item+DEP_EXT, cv2.CV_LOAD_IMAGE_UNCHANGED)
         lbl = item.split('/')[-3]
         y = [0]*len(categories)
@@ -185,10 +183,18 @@ def load_data(batch, categories, data_loc):
         rgb = rgb.transpose(2,0,1)
         dep = dep.transpose(2,0,1)
 
+        # mean removal
+        rgb = rgb - mean_img
+        dep = dep - mean_img
+
         # concatenate data
         rgb_train.append(rgb)
         dep_train.append(dep)
         y_train.append(y)
 
-    return np.array(rgb_train), np.array(dep_train), np.array(y_train)
+    rgb_train = np.float32(np.array(rgb_train))
+    dep_train = np.float32(np.array(dep_train))
+    y_train = np.float32(np.array(y_train))
+
+    return rgb_train, dep_train, y_train
 
