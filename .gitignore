@@ -8,4 +8,6 @@ keras_dario_sample.py
 
 *.h5
 *.json
+*.h5.bkup
+*.json.bkup
 *.caffemodel

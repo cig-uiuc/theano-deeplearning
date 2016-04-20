@@ -110,7 +110,7 @@ def train_model(model, mode, batch_size, train_samples, eval_samples, classes):
     '''
 
     nb_epoch = 1000
-    patience = 3
+    patience = 5
     min_loss = sys.maxint
     max_accuracy = 0
     nb_static_epoch = 0

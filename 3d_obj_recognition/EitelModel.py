@@ -163,12 +163,12 @@ def create_single_stream(nb_classes, inmodel, tag):
 
     # compile model
     if tag=='_rgb':
-        learning_rate = 0.01
+        learning_rate = 0.03
     elif tag=='_dep':
-        learning_rate = 0.003
+        learning_rate = 0.001
     else:
-        learning_rate = 0.01
-    sgd = SGD(lr=learning_rate, momentum=0.9, decay=0.0, nesterov=True)
+        learning_rate = 0.003
+    sgd = SGD(lr=learning_rate, momentum=0.9, decay=1e-6, nesterov=True)
     model.compile(loss={'output':'categorical_crossentropy'}, optimizer=sgd)
     #model.compile(loss='categorical_crossentropy', optimizer=sgd)
     #model.compile(loss='categorical_crossentropy', optimizer='adagrad')
@@ -278,7 +278,7 @@ def create_model_merge(in_rgb, in_dep, nb_classes):
     model.add_output(name='output', input='softmax_fus')
 
     # compile model
-    sgd = SGD(lr=0.0001, momentum=0.9, decay=0.0, nesterov=True)
+    sgd = SGD(lr=0.00003, momentum=0.9, decay=1e-6, nesterov=True)
     model.compile(loss={'output':'categorical_crossentropy'}, optimizer=sgd)
     #model.compile(loss='categorical_crossentropy', optimizer=sgd)
     #model.compile(loss='categorical_crossentropy', optimizer='adagrad')
