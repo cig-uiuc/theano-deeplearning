@@ -57,7 +57,7 @@ def save_model(model, name):
     model.save_weights(MODEL_LOC+name+WEIGHT_EXT, overwrite=True)
 
 
-def load_model(loc, name, use_marcbs=False):
+def load_model(loc, name):
     '''
     if use_marcbs:
         model = marcbs_model_from_json(open(loc+name+STRUCT_EXT).read())
@@ -80,6 +80,7 @@ def switch_input(rgb_x, dep_x, mode):
     elif mode == 2:
         x = [rgb_x, dep_x]
     return x
+
 
 def gen_graph_input_params(rgb_x, dep_x, mode):
     if mode==0:
@@ -108,13 +109,12 @@ def train_model(model, mode, batch_size, train_samples, eval_samples, classes):
     mode = 1: use only dep
     mode = 2: use both rgb and dep
     '''
-
     nb_epoch = 1000
     patience = 5
     min_loss = sys.maxint
     max_accuracy = 0
     nb_static_epoch = 0
-    epsilon = 0.01
+    epsilon = 0.003
 
     nb_train_samples = len(train_samples)
     nb_eval_samples  = len(eval_samples)
@@ -141,7 +141,7 @@ def train_model(model, mode, batch_size, train_samples, eval_samples, classes):
 
         # training---------------------------------------------------------
         print 'Training phase'
-        f.write('Training phase--------------------------------\n')
+        f.write('Training phase------------------------------------------------\n')
 
         train_bar.start()
         start_time = time.time()
@@ -174,7 +174,7 @@ def train_model(model, mode, batch_size, train_samples, eval_samples, classes):
 
         # evaluating-------------------------------------------------------
         print 'Evaluation phase'
-        f.write('Evaluation phase------------------------------\n')
+        f.write('Evaluation phase-----------------------------------------------\n')
         avg_loss = 0
         avg_accuracy = 0
         eval_bar.start()
@@ -234,10 +234,10 @@ def main():
     eval_samples  = dtp.sample_paths_from_list(DATA_LOC, LIST_LOC+EVAL_LIST)
     classes = open(DICT, 'r+').read().splitlines()
     nb_classes = len(classes)
-    batch_size = 30
+    batch_size = 180
 
     # load pretrained models----------------------------------------------------
-    pretrained = load_model(PRETRAINED_LOC, PRETRAINED_NAME, use_marcbs=True)
+    pretrained = load_model(PRETRAINED_LOC, PRETRAINED_NAME)
 
     # generate RGB stream model------------------------------------------------------
     if not model_exist(RGB_MODEL_NAME):
@@ -276,7 +276,7 @@ def main():
     del dep_stream
     plot(fusion_model, 'fusion_model.png')
 
-    batch_size=10
+    batch_size=200
     fusion_model = train_model(fusion_model, 2, batch_size, train_samples, eval_samples, classes)
     if SAVE_MODEL:
         save_model(fusion_model, FUS_MODEL_NAME)

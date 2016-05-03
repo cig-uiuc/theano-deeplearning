@@ -22,7 +22,7 @@ STRUCT_EXT     = '.json'
 WEIGHT_EXT     = '.h5'
 
 
-def load_model(loc, name, use_marcbs=False):
+def load_model(loc, name):
     model = model_from_json(open(loc+name+STRUCT_EXT).read())
     model.load_weights(loc+name+WEIGHT_EXT)
     return model
@@ -78,7 +78,7 @@ def test_model(model):
 
 
 def main():
-   # load and test models
+    # load and test models
     rgb_model = load_model(MODEL_LOC, RGB_MODEL_NAME)
     print 'Testing rgb model...'
     test_model(rgb_model)
