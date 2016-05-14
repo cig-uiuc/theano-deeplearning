@@ -114,7 +114,10 @@ def train_model(model, mode, batch_size, train_samples, eval_samples, classes):
     min_loss = sys.maxint
     max_accuracy = 0
     nb_static_epoch = 0
-    epsilon = 0.003
+    epsilon = 0.0001
+
+    #eval = train
+    #eval_samples = train_samples
 
     nb_train_samples = len(train_samples)
     nb_eval_samples  = len(eval_samples)
@@ -150,9 +153,6 @@ def train_model(model, mode, batch_size, train_samples, eval_samples, classes):
             train_bar.update(batch_id)
             batch = train_samples[batch_id : batch_id+batch_size]
             rgb_x, dep_x, y = dtp.load_data(batch, classes, DATA_LOC)
-
-            #x = switch_input(rgb_x, dep_x, mode)
-            #(loss, accuracy) = model.train_on_batch(x, y, accuracy=True)
             params = gen_graph_input_params(rgb_x, dep_x, mode)
             
             # find loss
@@ -163,8 +163,6 @@ def train_model(model, mode, batch_size, train_samples, eval_samples, classes):
             del params['output']
             pred = model.predict(params)
             acc_count, acc_on_batch = compute_accuracy(pred.get('output'), y)
-
-            #pdb.set_trace()
 
             f.write(str(loss[0]) + ' --- ' + str(acc_on_batch) + '\n')
         train_bar.finish()
@@ -178,12 +176,11 @@ def train_model(model, mode, batch_size, train_samples, eval_samples, classes):
         avg_loss = 0
         avg_accuracy = 0
         eval_bar.start()
+
         for batch_id in range(0, nb_eval_samples, batch_size):
             eval_bar.update(batch_id)
             batch = eval_samples[batch_id : batch_id+batch_size]
             rgb_x, dep_x, y = dtp.load_data(batch, classes, DATA_LOC)
-            #x = switch_input(rgb_x, dep_x, mode)
-            #(loss, accuracy) = model.test_on_batch(x, y, accuracy=True)
             params = gen_graph_input_params(rgb_x, dep_x, mode)
 
             # find losss
@@ -276,7 +273,7 @@ def main():
     del dep_stream
     plot(fusion_model, 'fusion_model.png')
 
-    batch_size=200
+    batch_size=500
     fusion_model = train_model(fusion_model, 2, batch_size, train_samples, eval_samples, classes)
     if SAVE_MODEL:
         save_model(fusion_model, FUS_MODEL_NAME)

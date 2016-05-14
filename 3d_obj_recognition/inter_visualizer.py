@@ -80,7 +80,6 @@ def main():
 
     # load model
     model = load_model(MODEL_LOC, FUS_MODEL_NAME)
-    pdb.set_trace()
 
     # get node functions
     node_func1 = theano.function([model.inputs['input_rgb'].get_input(train=False)],\

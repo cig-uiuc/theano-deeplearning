@@ -153,7 +153,7 @@ def create_single_stream(nb_classes, inmodel, tag):
 
     # classifier layer
     fc8 = Dense(nb_classes)
-    output_loss = Activation('softmax', name='output_loss')
+    output_loss = Activation('softmax')
 
     model.add_node(fc8, name='fc8'+tag, input='drop7'+tag) 
     model.add_node(output_loss, name='output_loss'+tag, input='fc8'+tag) 
@@ -205,6 +205,7 @@ def construct_branch(model, branch, tag):
     relu7 = branch.nodes.get('relu7'+tag)
     drop7 = branch.nodes.get('drop7'+tag)
 
+
     # don't allow training on branch
     conv1.trainable = False
     conv2.trainable = False
@@ -250,7 +251,15 @@ def construct_branch(model, branch, tag):
     model.add_node(relu7, name='relu7'+tag, input='fc7'+tag) 
     model.add_node(drop7, name='drop7'+tag, input='relu7'+tag) 
 
+
+    # try to add softmax layers
+    #fc8 = branch.nodes.get('fc8'+tag)
+    #output_loss = branch.nodes.get('output_loss'+tag)
+    #model.add_node(fc8, name='fc8'+tag, input='drop7'+tag)
+    #model.add_node(output_loss, name='output_loss'+tag, input='fc8'+tag)
+
     return model
+
 
 def create_model_merge(in_rgb, in_dep, nb_classes):
     model = Graph()
@@ -258,18 +267,19 @@ def create_model_merge(in_rgb, in_dep, nb_classes):
     model = construct_branch(model, in_dep, '_dep')
 
     # fc1-fus layer
-    model.add_node(Dense(100), name='fc1_fus', inputs=['drop7_rgb', 'drop7_dep'], merge_mode='concat')
-    #model.add_node(Dense(4096), name='fc1_fus', inputs=['relu7_rgb', 'relu7_dep'], merge_mode='concat')
-    model.add_node(BatchNormalization(), name='fc1_norm', input='fc1_fus')
+    #model.add_node(Dense(102), name='fc1_fus', inputs=['output_loss_rgb', 'output_loss_dep'], merge_mode='concat')
+    model.add_node(Dense(4096), name='fc1_fus', inputs=['drop7_rgb', 'drop7_dep'], merge_mode='concat')
+    #model.add_node(Activation('relu'), name='relu1_fus', input='fc1_fus')
+    #model.add_node(BatchNormalization(), name='fc1_norm', input='fc1_fus')
     #model.add_node(Dropout(0.5), name='drop_fus', input='fc1_fus')
     
     # classifier layer
-    #model.add(Dense(nb_classes, activation='softmax'))
-    model.add_node(Dense(nb_classes, activation='softmax'), name='softmax_fus', input='fc1_norm')
+    model.add_node(Dense(nb_classes), name='fc2_fus', input='fc1_fus')
+    model.add_node(Activation('softmax'), name='softmax_fus', input='fc2_fus')
     model.add_output(name='output', input='softmax_fus')
 
     # compile model
-    sgd = SGD(lr=0.0001, momentum=0.9, decay=1e-6, nesterov=True)
+    sgd = SGD(lr=0.001, momentum=0.9, decay=1e-6, nesterov=True)
     model.compile(loss={'output':'categorical_crossentropy'}, optimizer=sgd)
     #model.compile(loss={'output':'categorical_crossentropy'}, optimizer='adagrad')
 

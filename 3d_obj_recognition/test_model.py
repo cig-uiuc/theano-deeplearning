@@ -4,6 +4,7 @@ import data_processor as dtp
 import progressbar
 import numpy as np
 import pdb
+import sys
 
 DATA_LOC  = '/media/data/washington_dataset/fullset/cropped/'
 LIST_LOC  = './lists/'
@@ -79,6 +80,7 @@ def test_model(model):
 
 def main():
     # load and test models
+    '''
     rgb_model = load_model(MODEL_LOC, RGB_MODEL_NAME)
     print 'Testing rgb model...'
     test_model(rgb_model)
@@ -88,42 +90,12 @@ def main():
     print 'Testing depth model...'
     test_model(dep_model)
     del dep_model
+    '''
 
     fus_model = load_model(MODEL_LOC, FUS_MODEL_NAME)
     print 'Testing fusion model...'
     test_model(fus_model)
     del fus_model
-
-    '''
-    # test
-    batch_size = 30
-    avg_loss = 0
-    avg_accuracy = 0
-    nb_test_batches  = int(np.ceil(1.0*nb_test_samples/batch_size))
-    bar = progressbar.ProgressBar(maxval=nb_test_samples, \
-        widgets=[progressbar.Bar('=', '[', ']'), ' ', progressbar.Percentage()])
-    bar.start()
-    for batch_id in range(0, nb_test_samples, batch_size):
-        bar.update(batch_id)
-        batch = test_samples[batch_id : batch_id+batch_size]
-        rgb_x, dep_x, y = dtp.load_data(batch, classes, DATA_LOC)
-        params = {'input_rgb':rgb_x, 'input_dep':dep_x, 'output':y}
-
-        loss = fus_model.test_on_batch(params)
-        del params['output']
-        pred = fus_model.predict(params)
-        acc_count, acc_on_batch = compute_accuracy(pred.get('output'), y)
-
-        avg_loss += loss[0]
-        avg_accuracy += acc_count
-    bar.finish()
-
-    # show results
-    avg_loss /= nb_test_batches
-    avg_accuracy /= nb_test_samples
-
-    print 'Average loss: ' + str(avg_loss) + ' - Average accuracy: ' + str(avg_accuracy)
-    '''
 
 
 if __name__ == '__main__':
