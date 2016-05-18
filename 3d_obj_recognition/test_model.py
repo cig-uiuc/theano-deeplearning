@@ -1,3 +1,7 @@
+'''
+Test prediction accuracy of stream and fusion models based on Eitel et al's paper.
+Fusion model is still buggy.
+'''
 from keras.models import model_from_json
 import EitelModel as eitel
 import data_processor as dtp
@@ -80,7 +84,6 @@ def test_model(model):
 
 def main():
     # load and test models
-    '''
     rgb_model = load_model(MODEL_LOC, RGB_MODEL_NAME)
     print 'Testing rgb model...'
     test_model(rgb_model)
@@ -90,7 +93,6 @@ def main():
     print 'Testing depth model...'
     test_model(dep_model)
     del dep_model
-    '''
 
     fus_model = load_model(MODEL_LOC, FUS_MODEL_NAME)
     print 'Testing fusion model...'

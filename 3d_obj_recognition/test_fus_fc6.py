@@ -1,3 +1,7 @@
+'''
+Test prediction accuracy of the fusion model based on our proposed method.
+RGB and Depth stream are trained by running "train_model.py"
+'''
 from keras.models import model_from_json
 import theano
 import EitelModel as eitel

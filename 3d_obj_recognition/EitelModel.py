@@ -1,3 +1,7 @@
+'''
+Create architecture for stream models (RGB and D) based on Eitel et al paper.
+Fusion model is still buggy.
+'''
 from keras.models import Graph, Sequential
 from keras.layers import Dense, Dropout, Activation , Flatten, Merge
 from keras.layers.convolutional import Convolution2D, MaxPooling2D, ZeroPadding2D

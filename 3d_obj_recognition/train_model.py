@@ -1,3 +1,7 @@
+'''
+Train stream and fusion models based on Eitel et al's model description.
+Fusion model is still buggy.
+'''
 from keras.models import Graph
 from keras.layers import Dense, Activation, Dropout, Flatten
 from keras.layers.convolutional import Convolution2D, MaxPooling2D
@@ -21,6 +25,7 @@ import data_processor as dtp
 # Constants=========================================================================
 SAVE_MODEL = True
 
+LOG_LOC = './log/'
 LIST_LOC = './lists/'
 DATA_LOC = '/media/data/washington_dataset/fullset/cropped/'
 
@@ -131,11 +136,11 @@ def train_model(model, mode, batch_size, train_samples, eval_samples, classes):
 
 
     if mode==0:
-        f = open('rgb_train.log', 'w', 0)
+        f = open(LOG_LOC+'rgb_train.log', 'w', 0)
     elif mode==1:
-        f = open('dep_train.log', 'w', 0)
+        f = open(LOG_LOC+'dep_train.log', 'w', 0)
     elif mode==2:
-        f = open('fus_train.log', 'w', 0)
+        f = open(LOG_LOC+'fus_train.log', 'w', 0)
 
 
     for epoch in range(nb_epoch):

@@ -1,3 +1,7 @@
+'''
+Train fusion model using our own proposed architecture.
+RGB and Depth stream models must be prepared first by running file "train_model.py".
+'''
 from keras.models import model_from_json
 from keras.models import Graph
 from keras.layers import Dense, Dropout, Activation
@@ -13,6 +17,7 @@ import pdb
 
 DATA_LOC = '/media/data/washington_dataset/fullset/cropped/'
 LIST_LOC = './lists/'
+LOG_LOC  = './log/'
 
 MODEL_LOC = './models/full/'
 TRAIN_LIST = 'train_list_full.txt'
@@ -91,7 +96,7 @@ def train_model(model, rgb_func, dep_func, train_samples, eval_samples, classes)
     train_bar = progressbar.ProgressBar(maxval=nb_train_samples, widgets=progress_widget)
     eval_bar  = progressbar.ProgressBar(maxval=nb_eval_samples, widgets=progress_widget)
 
-    f = open('fus_fc6_train.log', 'w', 0)
+    f = open(LOG_LOC+'fus_fc6_train.log', 'w', 0)
 
 
     for epoch in range(nb_epoch):
